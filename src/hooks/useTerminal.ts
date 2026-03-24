@@ -61,6 +61,67 @@ export function useTerminal(initialFS?: FileNode) {
     return current;
   }, []);
 
+  const saveFile = useCallback((name: string, content: string) => {
+    setState(prev => {
+      const newFS = { ...prev.fileSystem };
+      const dir = getDir(prev.currentPath, newFS);
+      if (dir && dir.children) {
+        dir.children[name] = {
+          name,
+          type: 'file',
+          content,
+          permissions: '644'
+        };
+      }
+      return {
+        ...prev,
+        fileSystem: newFS,
+        isEditorOpen: false,
+        editingFile: undefined,
+        output: [...prev.output, { type: 'output', content: `File '${name}' saved.` }]
+      };
+    });
+  }, [getDir]);
+
+  const exitEditor = useCallback(() => {
+    setState(prev => ({ ...prev, isEditorOpen: false, editingFile: undefined }));
+  }, []);
+
+  const tabComplete = useCallback((input: string): string => {
+    const parts = input.split(/\s+/);
+    const cmd = parts[0];
+    const lastPart = parts[parts.length - 1];
+    
+    // If it's just the command part, we could suggest commands, but let's focus on files for now
+    if (parts.length === 1 && !input.endsWith(' ')) {
+      const commands = ['ls', 'cd', 'cat', 'mkdir', 'touch', 'pwd', 'clear', 'git', 'help', 'gcc', 'chmod', 'nano', 'mv', 'cp', 'rm'];
+      const matches = commands.filter(c => c.startsWith(cmd));
+      if (matches.length === 1) return matches[0] + ' ';
+      return input;
+    }
+
+    const dir = getDir(state.currentPath, state.fileSystem);
+    if (!dir || !dir.children) return input;
+
+    let entries = Object.keys(dir.children);
+
+    // Context-aware filtering
+    if (cmd === 'cd') {
+      entries = entries.filter(name => dir.children![name].type === 'directory');
+    } else if (cmd === 'gcc') {
+      entries = entries.filter(name => name.endsWith('.c'));
+    } else if (cmd === 'nano' || cmd === 'cat') {
+      entries = entries.filter(name => dir.children![name].type === 'file');
+    }
+
+    const matches = entries.filter(name => name.startsWith(lastPart));
+    if (matches.length === 1) {
+      parts[parts.length - 1] = matches[0];
+      return parts.join(' ');
+    }
+    return input;
+  }, [state.currentPath, state.fileSystem, getDir]);
+
   const executeCommand = useCallback((input: string) => {
     const [cmd, ...args] = input.trim().split(/\s+/);
     if (!cmd) return;
@@ -79,8 +140,27 @@ export function useTerminal(initialFS?: FileNode) {
     };
 
     switch (cmd) {
+      case 'nano': {
+        const name = args[0];
+        if (!name) {
+          addOutput('nano: missing filename', 'error');
+          break;
+        }
+        const dir = getDir(state.currentPath, state.fileSystem);
+        const file = dir?.children?.[name];
+        setState(prev => ({
+          ...prev,
+          isEditorOpen: true,
+          editingFile: {
+            name,
+            content: file?.content || ''
+          }
+        }));
+        break;
+      }
       case 'help':
-        addOutput('Available commands: ls, cd, cat, mkdir, touch, pwd, clear, git, help');
+        addOutput('Available commands: ls, cd, cat, mkdir, touch, pwd, clear, git, help, gcc, chmod, nano');
+        addOutput('Maslahat: "Tab" tugmasini bosib, buyruq yoki fayl nomini avtomatik to\'ldirishingiz mumkin.');
         break;
       case 'clear':
         setState(prev => ({ ...prev, output: [] }));
@@ -364,5 +444,5 @@ export function useTerminal(initialFS?: FileNode) {
     }
   }, [state.currentPath, state.fileSystem, getDir]);
 
-  return { state, executeCommand };
+  return { state, executeCommand, saveFile, exitEditor, tabComplete };
 }

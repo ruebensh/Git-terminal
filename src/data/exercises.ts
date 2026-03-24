@@ -243,5 +243,34 @@ export const EXERCISES: Exercise[] = [
     checkCompletion: (state) => {
       return state.history.some(cmd => cmd === './dastur');
     }
+  },
+  {
+    id: 'ex-9',
+    title: 'ex05: Nano tahrirlovchisi',
+    description: 'Fayl ichiga matn yozish uchun "nano" dan foydalanamiz. "test.txt" faylini oching, ichiga "Salom" deb yozing va saqlang.',
+    initialFileSystem: {
+      name: '/',
+      type: 'directory',
+      children: {
+        'home': {
+          name: 'home',
+          type: 'directory',
+          children: {
+            'user': {
+              name: 'user',
+              type: 'directory',
+              children: {}
+            }
+          }
+        }
+      }
+    },
+    goal: 'nano orqali test.txt faylini yaratib, ichiga "Salom" deb yozing.',
+    hint: 'nano test.txt -> matn yozing -> [Save] tugmasini bosing',
+    checkCompletion: (state) => {
+      const dir = state.fileSystem.children?.home?.children?.user;
+      const file = dir?.children?.['test.txt'];
+      return file?.type === 'file' && file.content?.includes('Salom');
+    }
   }
 ];

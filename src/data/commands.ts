@@ -66,6 +66,12 @@ export const TERMINAL_COMMANDS: Command[] = [
     description: 'Bu buyruq - bu faylga "ruxsatnoma" berish. Tasavvur qiling, sizda bir o\'yinchoq bor, lekin uni faqat siz o\'ynata olasiz. "chmod +x" desangiz, siz kompyuterga: "Bu faylni ishlatishga ruxsat beraman" degan bo\'lasiz. Busiz kompyuter dasturni ishga tushirishga qo\'rqadi.',
     examples: ['chmod +x fayl_nomi (ishlatishga ruxsat berish)', 'chmod 777 fayl_nomi (hamma narsaga ruxsat berish)'],
     category: 'terminal'
+  },
+  {
+    name: 'nano',
+    description: 'Bu - kompyuter ichidagi kichkina "bloknot". Agar siz biror fayl ichiga nimanidir yozmoqchi bo\'lsangiz (masalan, C kodi yoki shunchaki matn), "nano" ni ishlatasiz. U xuddi qog\'oz va qalam kabi ishlaydi.',
+    examples: ['nano main.c (main.c faylini ochish yoki yaratish)', 'nano xat.txt (matnli fayl ochish)'],
+    category: 'terminal'
   }
 ];
 

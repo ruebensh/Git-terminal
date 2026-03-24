@@ -8,9 +8,16 @@ interface TerminalProps {
 }
 
 export function Terminal({ initialFS }: TerminalProps) {
-  const { state, executeCommand } = useTerminal(initialFS);
+  const { state, executeCommand, saveFile, exitEditor, tabComplete } = useTerminal(initialFS);
   const [input, setInput] = useState('');
+  const [editorContent, setEditorContent] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (state.isEditorOpen && state.editingFile) {
+      setEditorContent(state.editingFile.content);
+    }
+  }, [state.isEditorOpen, state.editingFile]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -25,6 +32,67 @@ export function Terminal({ initialFS }: TerminalProps) {
       setInput('');
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const completed = tabComplete(input);
+      setInput(completed);
+    }
+  };
+
+  const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+    if (e.ctrlKey && e.key === 'o') {
+      e.preventDefault();
+      saveFile(state.editingFile!.name, editorContent);
+    } else if (e.ctrlKey && e.key === 'x') {
+      e.preventDefault();
+      exitEditor();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = (e.target as HTMLTextAreaElement).selectionStart;
+      const end = (e.target as HTMLTextAreaElement).selectionEnd;
+      const newContent = editorContent.substring(0, start) + "    " + editorContent.substring(end);
+      setEditorContent(newContent);
+      // We can't easily set selection back here without a ref, but it's a good start
+    }
+  };
+
+  if (state.isEditorOpen && state.editingFile) {
+    return (
+      <div className="bg-[#000080] text-white font-mono p-0 rounded-lg shadow-2xl h-[500px] flex flex-col border border-gray-400 overflow-hidden">
+        <div className="bg-gray-300 text-black px-2 py-1 flex justify-between items-center text-xs font-bold">
+          <span>GNU nano 5.4</span>
+          <span>{state.editingFile.name}</span>
+          <span>Modified</span>
+        </div>
+        <textarea
+          className="flex-1 bg-transparent outline-none p-4 resize-none text-white font-mono text-sm leading-relaxed"
+          value={editorContent}
+          onChange={(e) => setEditorContent(e.target.value)}
+          onKeyDown={handleEditorKeyDown}
+          autoFocus
+          spellCheck={false}
+        />
+        <div className="bg-gray-300 text-black p-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-bold">
+          <button 
+            onClick={() => saveFile(state.editingFile!.name, editorContent)}
+            className="bg-gray-400 hover:bg-gray-500 px-2 py-1 rounded border border-gray-600 flex items-center justify-center gap-1"
+          >
+            <span className="text-blue-800">^O</span> Saqlash
+          </button>
+          <button 
+            onClick={exitEditor}
+            className="bg-gray-400 hover:bg-gray-500 px-2 py-1 rounded border border-gray-600 flex items-center justify-center gap-1"
+          >
+            <span className="text-blue-800">^X</span> Chiqish
+          </button>
+          <div className="hidden sm:flex items-center justify-center opacity-50">Yordam: F1</div>
+          <div className="hidden sm:flex items-center justify-center opacity-50">Qidirish: ^W</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#1e1e1e] text-[#d4d4d4] font-mono p-4 rounded-lg shadow-2xl h-[500px] flex flex-col border border-gray-800">
@@ -53,6 +121,7 @@ export function Terminal({ initialFS }: TerminalProps) {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           className="bg-transparent border-none outline-none flex-1 text-green-400"
           autoFocus
         />

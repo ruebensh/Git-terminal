@@ -12,6 +12,8 @@ export interface TerminalState {
   history: string[];
   output: { type: 'input' | 'output' | 'error'; content: string }[];
   currentBranch?: string;
+  isEditorOpen?: boolean;
+  editingFile?: { name: string; content: string };
 }
 
 export interface Command {
