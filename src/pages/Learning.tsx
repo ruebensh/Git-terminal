@@ -3,6 +3,8 @@ import { Navbar } from '../components/Navbar';
 import { TERMINAL_COMMANDS, C_CONCEPTS, GIT_COMMANDS } from '../data/commands';
 import { EXERCISES } from '../data/exercises';
 import { Terminal } from '../components/Terminal';
+import { CompilationVisual } from '../components/CompilationVisual';
+import { VariablesVisual } from '../components/VariablesVisual';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Terminal as TerminalIcon, Code, GitBranch, CheckCircle2, Play } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -90,6 +92,20 @@ export function Learning() {
                     {selectedItem?.description}
                   </p>
                 </div>
+
+                {selectedItem?.name === 'O\'zgaruvchilar (Variables)' && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Vizual ko'rinish</h4>
+                    <VariablesVisual />
+                  </div>
+                )}
+
+                {selectedItem?.name === 'Kompilyatsiya va Ishga tushirish' && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Vizual jarayon</h4>
+                    <CompilationVisual />
+                  </div>
+                )}
 
                 {selectedItem?.examples && (
                   <div className="space-y-4">

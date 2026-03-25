@@ -93,6 +93,12 @@ export const C_CONCEPTS: Command[] = [
     description: 'Tasavvur qiling, sizga "100 marta o\'tirib-turing" deyishdi. Siz buni sanab bajarasiz. Sikllar ham shunday: kompyuterga "shu ishni 10 marta bajar" deysiz va u charchamasdan qayta-qayta bajaradi. Bu zerikarli ishlarni tez bitirish uchun kerak.',
     examples: ['for (int i = 0; i < 10; i++) { ... }'],
     category: 'c'
+  },
+  {
+    name: 'Kompilyatsiya va Ishga tushirish',
+    description: 'Siz yozgan C kodi (main.c) - bu shunchaki matn. Uni kompyuter tushunishi uchun "gcc" yordamida "tarjima" (kompilyatsiya) qilish kerak. Natijada "a.out" yoki siz xohlagan nomdagi (masalan, "hello") dastur paydo bo\'ladi. Uni ishga tushirish uchun esa "./" dan foydalanamiz.',
+    examples: ['gcc main.c (kompilyatsiya)', './a.out (ishga tushirish)', 'gcc main.c -o hello (nom berib kompilyatsiya)', './hello (nomli dasturni ishga tushirish)'],
+    category: 'c'
   }
 ];
 
